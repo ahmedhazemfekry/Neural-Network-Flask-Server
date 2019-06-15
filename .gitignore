@@ -1,0 +1,8 @@
+# Don't track content of these files
+d2v.model
+weights
+.DS_Store
+
+# Don't track content of these folders
+__pycache__/
+venv/
