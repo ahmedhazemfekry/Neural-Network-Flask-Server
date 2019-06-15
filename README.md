@@ -1,15 +1,15 @@
 # Neural Network ML Model
-python flask server to train Supervised ML Model 
+  python flask server to train Supervised ML Model 
 
 # Initialize
-pip install virtualenv
+  1. pip install virtualenv
 
-pip install virtualenv
+  2. pip install virtualenv
 
-cd [to the project folder]
+  3. cd [to the project folder]
 
-virtualenv venv
+  4. virtualenv venv
 
-. venv/bin/activate
+  5. . venv/bin/activate
 
-pip install Flask
+  6. pip install Flask
