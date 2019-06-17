@@ -6,14 +6,18 @@ import preprocessing as pre
 from nltk.tokenize import word_tokenize
 
 # Get the Vector coressponds to a specific Product Title
-def Get_Product_Title_Vector(product_title):
+def Get_Product_Title_Vector(products_title):
     model= pre.Doc2Vec.load("d2v.model")
+    VectorsList = []
     #to find the vector of a document which is not in training data
-    title_tokenized = word_tokenize(product_title.lower())
-    vector = model.infer_vector(title_tokenized)
-    vector = np.asarray(vector, dtype=np.float32)
-    vector = vector.reshape((1, 20))
-    return vector
+    for product_title in products_title:
+        title_tokenized = word_tokenize(product_title.lower())
+        vector = model.infer_vector(title_tokenized)
+        #vector = np.asarray(vector, dtype=np.float32)
+        #vector = vector.reshape((1, 20))
+        VectorsList.append(vector.tolist())
+    VectorsList = np.asarray(VectorsList, dtype=np.float32)
+    return VectorsList
 
 # Get Array of Vectors for all the Data (Products Titles)
 def Get_Product_Vectors(model,input_size, vec_size):

@@ -5,6 +5,9 @@ import tensorflow as tf
 
 from tensorflow.keras import layers
 
+import logging
+logging.getLogger('tensorflow').disabled = True
+
 def Train(train_data,train_labels, val_data, val_labels, output_size):
     ML_model = tf.keras.Sequential([
     # Adds a densely-connected layer with units to the model:
