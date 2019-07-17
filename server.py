@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -22,6 +21,7 @@ titles         = None
 classes        = None
 targets        = None
 categories     = None
+training_type  = 0
 
 app = Flask(__name__)
 
@@ -47,21 +47,29 @@ def Train():
     # Extracting product titles and product classes
     titles = JsonData["products"]
     targets = JsonData["classes"]
-
+    training_type = JsonData["training_type"]
+    # 1 is Very Small (80  vec size, Hidden Layers (1024,512))
+    # 2 is Small      (200 vec size, Hidden Layers (2048,1024))
+    # 3 is Large      (200 vec size, Hidden Layers (2048,1024,1024))
     if(len(titles) == len(targets)):
     # Preprocessing of data
         # Converts target to multi classes array where [1,0,0,0,0,0,....] corresponds to class 1 and [0,1,0,0,0,0,....] corresponds to class 2
         labels, classes, categories = hp.Get_Targets_Arrays(targets)
+        print(categories)
         # Converts products titles to vectors
-        pre.Dov2Vectors(titles)
-        # Loading the products vectors model done at the last step
-        model= pre.Doc2Vec.load("d2v.model")
+        pre.Doc2Vectors(titles, training_type)
         # Creating Vectors List for all products -> Dataset
-        Vectors_List = hp.Get_Product_Vectors(model,144,20)
+        Vectors_List = hp.Get_Product_Vectors(len(titles),training_type)
         # Splitting Data to Train, Validate and Test sets
         train_data, train_labels, val_data, val_labels, test_data, test_labels = pre.Data_Split(Vectors_List,labels)
         # Training
-        ML_model, ML_history = ml.Train(train_data, train_labels, val_data, val_labels, len(labels[0]))
+        if(training_type == 1):
+            ML_model, ML_history = ml.Train_1(train_data, train_labels, val_data, val_labels, len(labels[0]))
+        else:
+            if(training_type ==2):
+                ML_model, ML_history = ml.Train_2(train_data, train_labels, val_data, val_labels, len(labels[0]))
+            else:
+                ML_model, ML_history = ml.Train_3(train_data, train_labels, val_data, val_labels, len(labels[0]))
 
         graph = tf.get_default_graph()
         # Evaluating the trained model
@@ -78,6 +86,7 @@ def Predict():
     global ML_model
     global classes
     global categories
+    global training_type
 
     # Getting the POST Request Body Data
     Data = request.data
@@ -102,24 +111,10 @@ def Predict():
         # Predictions
         pred = ML_model.predict(v)
         max_index = np.argmax(pred)
-
         predicted_class = categories[max_index]
         predicted_classes.append(predicted_class)
-
-    model= pre.Doc2Vec.load("d2v.model")
-    v = hp.Get_Product_Vectors(model,144,20)
-    preds = ML_model.predict(v)
-
-    predicted_classes_2 = []
-
-    for pred in preds:
-        max_index = np.argmax(pred)
-
-        predicted_class = categories[max_index]
-        predicted_classes_2.append(predicted_class)
     response = {
     "predictions":predicted_classes,
-    "compare":predicted_classes_2
     }
     return jsonify(response)
 
